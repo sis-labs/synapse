@@ -152,16 +152,17 @@ The base watcher is useful in situations where you only want to use the servers 
 It has the following options:
 
 * `method`: base
-* `label_filter`: optional filter to be applied to discovered service nodes
+* `label_filters`: optional list of filters to be applied to discovered service nodes
 
 ###### Filtering service nodes ######
-Synapse can be configured to only return service nodes that match a `label_filter` predicate. If provided, the `label_filter` hash should contain the following:
 
-* `label`: The label for which the filter is applied
+Synapse can be configured to only return service nodes that match a `label_filters` predicate. If provided, `label_filters` should be an array of hashes which contain the following:
+
+* `label`: The name of the label for which the filter is applied
 * `value`: The comparison value
-* `condition` (one of ['`equals`']): The type of filter condition to be applied. Only `equals` is supported at present
+* `condition` (one of ['`equals`', '`not-equals`']): The type of filter condition to be applied.
 
-Given a `label_filter`: `{ "label": "cluster", "value": "dev", "condition": "equals" }`, this will return only service nodes that contain the label value `{ "cluster": "dev" }`.
+Given a `label_filters`: `[{ "label": "cluster", "value": "dev", "condition": "equals" }]`, this will return only service nodes that contain the label value `{ "cluster": "dev" }`.
 
 ##### Zookeeper #####
 
@@ -284,6 +285,7 @@ The top level `haproxy` section of the config file has the following options:
 * `do_writes`: whether or not the config file will be written (default to `true`)
 * `do_reloads`: whether or not Synapse will reload HAProxy (default to `true`)
 * `do_socket`: whether or not Synapse will use the HAProxy socket commands to prevent reloads (default to `true`)
+* `socket_file_path`: where to find the haproxy stats socket. can be a list (if using `nbproc`)
 * `global`: options listed here will be written into the `global` section of the HAProxy config
 * `defaults`: options listed here will be written into the `defaults` section of the HAProxy config
 * `extra_sections`: additional, manually-configured `frontend`, `backend`, or `listen` stanzas
@@ -332,7 +334,9 @@ For example:
    - "bind 127.0.0.1:8081"
   reload_command: "service haproxy reload"
   config_file_path: "/etc/haproxy/haproxy.cfg"
-  socket_file_path: "/var/run/haproxy.sock"
+  socket_file_path:
+    - /var/run/haproxy.sock
+    - /var/run/haproxy2.sock
   global:
    - "daemon"
    - "user    haproxy"
